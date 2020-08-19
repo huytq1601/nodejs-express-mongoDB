@@ -12,7 +12,18 @@ exports.checkID = (req, res, next, val) => {
     });
   }
   next();
-}
+};
+
+exports.checkBody = (req, res, next) => {
+  const { name, price } = req.body;
+  if (!name || !price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing name or price',
+    });
+  }
+  next();
+};
 
 exports.getAllTours = (req, res) => {
   res.status(200).json({
@@ -26,7 +37,7 @@ exports.getAllTours = (req, res) => {
 
 exports.getOneTour = (req, res) => {
   const id = +req.params.id;
-  const tour = tours.find(el => el.id === id)
+  const tour = tours.find((el) => el.id === id);
   res.status(200).json({
     status: 'success',
     data: {
@@ -37,12 +48,13 @@ exports.getOneTour = (req, res) => {
 
 exports.createTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+  const tour = req.body;
+  const newTour = { id: newId, tour };
 
   tours.push(newTour);
 
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (_) => {
       res.status(201).json({
@@ -56,6 +68,7 @@ exports.createTour = (req, res) => {
 };
 
 exports.updateTour = (req, res) => {
+  const { id } = +req.params;
   const tour = tours.find((el) => el.id === id);
   const updatedTour = Object.assign(tour, req.body);
   res.status(200).json({
